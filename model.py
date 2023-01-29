@@ -8,11 +8,11 @@ class NeuralNetwork(nn.Module):
     def __init__(self, states):
         super(NeuralNetwork, self).__init__()
         self.linear_relu_stack = nn.Sequential(
-            nn.Linear(19, 256),
+            nn.Linear(18, 250),
             nn.ReLU(),
-            nn.Linear(256, 256),
+            nn.Linear(250, 250),
             nn.ReLU(),
-            nn.Linear(256, 1)
+            nn.Linear(250, 1)
         )
 
     def forward(self, x):
@@ -24,11 +24,12 @@ def train_loop(model, inputs, actual, loss_fn, learning_rate, epochs):
     inputs = inputs.to(device)
     actual = actual.to(device)
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
+
     for epoch in range(epochs):
         totalLoss = 0
 
         # Compute the loss function
-        pred = model(inputs).reshape(-1)
+        pred = model(inputs)
         loss = loss_fn(pred, actual)
 
         totalLoss += loss.item()

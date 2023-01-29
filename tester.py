@@ -13,36 +13,39 @@ test_data = pd.read_csv("./data/2020flipped.csv")
 states = training_data['State'].unique()
 
 inputs, outputs = data_prep.prepare_train_data(training_data, states)
+
 test_inputs, test_outputs = data_prep.prepare_test_data(test_data)
-#norms = inputs.norm(dim=1)
+
+norms = outputs.reshape(5, 50).norm(dim=0).to(device)
+print("NORMS")
+print(norms)
 
 
 test_inputs = test_inputs.float().cuda()
-print(test_inputs.shape)
-print(test_inputs)
 test_outputs = test_outputs.float().cuda()
 
-inputs = torch.nn.functional.normalize(inputs, dim=2)
+inputs = torch.nn.functional.normalize(inputs, dim=1)
 outputs = torch.nn.functional.normalize(outputs, dim=0)
-print("======")
+print(outputs)
 
-print(test_inputs.shape)
-
-
-print("===================")
-
-#inputs = torch.nn.functional.normalize(inputs, dim=0)
-#outputs = torch.nn.functional.normalize(outputs, dim=1)
+print(inputs.shape)
+print(outputs.shape)
 
 nn_model = NeuralNetwork(len(states)).to(device)
 nn_model = nn_model.float()
 
+test_inputs = torch.nn.functional.normalize(test_inputs, dim=1)
+
 epochs = 500
-l_rate = 0.005
+l_rate = 0.01
 loss_fn = torch.nn.MSELoss()
 
-print(inputs)
 model.train_loop(nn_model, inputs, outputs, loss_fn, l_rate, epochs)
 
-print(test_inputs)
-print(nn_model(test_inputs))
+print("PREDICTIONS:")
+predictions = nn_model(test_inputs)
+print(predictions)
+
+print(predictions.shape)
+print(norms.shape)
+print(predictions.flatten() * norms)
